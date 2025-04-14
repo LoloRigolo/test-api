@@ -80,7 +80,7 @@ export default function TestRunner() {
             <button
               onClick={() => handleRemoveCampaign(c.id)}
               className="remove-btn"
-              title="Supprimer ce bloc"
+              title="Supprimer ce blocs"
             >
               ❌
             </button>
