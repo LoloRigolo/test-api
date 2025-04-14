@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { runTest } from "../helpers/requestRunner";
+import { runGetTest, runPostTest } from "../helpers/requestRunner";
 
 export default function TestRunner() {
   const [url, setUrl] = useState("");
@@ -17,7 +17,7 @@ export default function TestRunner() {
     setIsRunning(true);
     setStats(null);
 
-    const result = await runTest({
+    const result = await runGetTest({
       url,
       totalRequests: parseInt(totalRequests),
       delay: parseInt(delay),
