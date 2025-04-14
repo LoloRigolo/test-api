@@ -43,7 +43,6 @@ export default function TestRunner() {
 
   const handleStart = async () => {
     setIsRunning(true);
-
     setResults([]);
 
     for (const c of campaigns) {
@@ -68,18 +67,6 @@ export default function TestRunner() {
         { id: c.id, url: c.url, stats: result },
       ]);
     }
-
-    setStats(null);
-
-    const result = await runGetTest({
-      url,
-      totalRequests: parseInt(totalRequests),
-      delay: parseInt(delay),
-      onResult: (stats, current) => {
-        console.log(`Requête ${current}/${totalRequests}`, stats);
-      },
-    });
-
 
     setIsRunning(false);
   };
