@@ -187,3 +187,17 @@ button:disabled {
   margin-bottom: 4px;
   color: #444;
 }
+
+.middleware-btn {
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #ddd;
+  border: none;
+  cursor: pointer;
+}
+
+.middleware-textarea {
+  width: 100%;
+  font-family: monospace;
+  resize: vertical;
+}

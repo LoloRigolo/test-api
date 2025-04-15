@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import CodeEditor from "@uiw/react-textarea-code-editor";
 import { runGetTest, runPostTest } from "../helpers/requestRunner";
 import "./TestRunner.css";
 
@@ -11,6 +12,8 @@ export default function TestRunner() {
       totalRequests: 10,
       delay: 0,
       body: "{}",
+      middleware: "",
+      showMiddleware: false,
     },
   ]);
   const [results, setResults] = useState([]);
@@ -26,6 +29,8 @@ export default function TestRunner() {
         totalRequests: 10,
         delay: 0,
         body: "{}",
+        middleware: "",
+        showMiddleware: false,
       },
     ]);
   };
@@ -132,12 +137,54 @@ export default function TestRunner() {
           {c.method === "POST" && (
             <div className="form-group">
               <label>Corps JSON :</label>
-              <textarea
+              <CodeEditor
                 value={c.body}
-                onChange={(e) => handleChange(c.id, "body", e.target.value)}
-                rows={3}
+                language="json"
+                placeholder="Écris ton JSON ici..."
+                onChange={(evn) => handleChange(c.id, "body", evn.target.value)}
+                padding={15}
+                lineNumbers
+                style={{
+                  backgroundColor: "#f5f5f5",
+                  fontFamily:
+                    "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
+                }}
               />
             </div>
+          )}
+
+          {c.method === "POST" && c.showMiddleware && (
+            <div className="form-group">
+              <label>Middleware JS :</label>
+              <CodeEditor
+                value={c.middleware}
+                language="js"
+                placeholder="Écris ton middleware JS ici..."
+                onChange={(evn) =>
+                  handleChange(c.id, "middleware", evn.target.value)
+                }
+                padding={15}
+                lineNumbers
+                style={{
+                  backgroundColor: "#f5f5f5",
+                  fontFamily:
+                    "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
+                }}
+              />
+            </div>
+          )}
+
+          {c.method === "POST" && (
+            <button
+              onClick={() =>
+                handleChange(c.id, "showMiddleware", !c.showMiddleware)
+              }
+              className="middleware-btn"
+              disabled={c.method !== "POST"}
+              title="Modifier le middleware"
+            >
+              Middleware
+            </button>
           )}
 
           {results.find((r) => r.id === c.id) && (
