@@ -1,74 +1,89 @@
+/* Layout général */
 .tester-container {
-  max-width: 700px;
+  max-width: 800px;
   margin: 40px auto;
   padding: 30px;
   border-radius: 12px;
-  background-color: #444444;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
   font-family: "Segoe UI", sans-serif;
+  color: #222;
 }
 
+/* Titre principal */
 .title {
   text-align: center;
-  font-size: 28px;
-  margin-bottom: 30px;
-  color: #333;
+  font-size: 30px;
+  margin-bottom: 35px;
+  color: #1e1e1e;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.remove-btn {
-  float: right;
-  margin-top: -35px;
-  margin-right: -10px;
-  background: transparent;
-  border: none;
-  color: #c00;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.remove-btn:hover {
-  color: #f00;
-}
+/* Bloc de campagne */
 .campaign-block {
-  background-color: #333;
-  border: 1px solid #ddd;
-  padding: 20px;
+  position: relative;
+  background-color: #f4f6fa;
+  border: 1px solid #d6dbe6;
   border-radius: 12px;
-  margin-bottom: 25px;
+  padding: 25px;
+  margin-bottom: 30px;
 }
 
 .campaign-block h2 {
-  margin-bottom: 15px;
   font-size: 20px;
-  color: #fff;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+/* Bouton X */
+.remove-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #e74c3c;
+}
+
+/* Groupes de champs */
+.form-group {
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
   font-weight: 600;
-  margin-bottom: 8px;
-  color: #fff;
+  margin-bottom: 6px;
+  color: #333;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px;
+  padding: 10px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  outline: none;
+  background-color: #fff;
   transition: border-color 0.2s ease;
+}
+
+input {
+  background-color: #333;
+  padding: 5px;
+  border-radius: 10px;
 }
 
 .form-group-row {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -76,104 +91,83 @@
   flex: 1;
 }
 
+/* Boutons globaux */
 button {
-  width: 100%;
-  background-color: #007bff;
-  color: white;
-  padding: 12px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-button:hover:enabled {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  background-color: #999;
-  cursor: not-allowed;
-}
-
-.result {
-  margin-top: 30px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  font-family: "Courier New", monospace;
-  white-space: pre-wrap;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.stat-card {
-  background-color: #f0f4ff;
-  border: 1px solid #d0ddf8;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
-}
-
 .add-btn {
-  display: inline-block;
-  background-color: #28a745;
+  background-color: #3498db;
   color: white;
-  font-weight: bold;
-  border: none;
-  padding: 10px 15px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .add-btn:hover {
-  background-color: #218838;
+  background-color: #2c80b4;
 }
 
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Résultats */
 .result-block {
-  margin-top: 30px;
+  margin-top: 25px;
+  background-color: #ffffff;
   padding: 20px;
-  background: #3d3d3d;
-  border-left: 4px solid #007bff;
   border-radius: 10px;
+  border-left: 4px solid #3498db;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .result-block h3 {
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+/* Stats */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.btnspace {
+  display: flex;
+  justify-content: center;
+  justify-content: space-between;
+}
+.stat-card {
+  background-color: #ecf3ff;
+  border: 1px solid #c3d8f0;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
-  color: #1a3b8b;
+  color: #2c3e50;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #3d3d3d;
+  color: #555;
   margin-top: 4px;
 }
 
+/* Durée */
 .durations {
-  margin-top: 30px;
-  padding: 15px;
-  background: #fff;
-  border-radius: 10px;
-  border-left: 4px solid #007bff;
-}
-
-.durations h3 {
-  margin-bottom: 10px;
+  font-size: 15px;
   color: #333;
 }
 
@@ -185,5 +179,4 @@ button:disabled {
 
 .durations li {
   margin-bottom: 4px;
-  color: #444;
 }

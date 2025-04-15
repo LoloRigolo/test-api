@@ -202,14 +202,15 @@ export default function TestRunner() {
           )}
         </div>
       ))}
+      <div class="btnspace">
+        <button onClick={handleAddCampaign} className="add-btn">
+          ➕ Ajouter un bloc de test
+        </button>
 
-      <button onClick={handleAddCampaign} className="add-btn">
-        ➕ Ajouter un bloc de test
-      </button>
-
-      <button onClick={handleStart} disabled={isRunning}>
-        {isRunning ? "Tests en cours..." : "Lancer les tests"}
-      </button>
+        <button onClick={handleStart} disabled={isRunning}>
+          {isRunning ? "Tests en cours..." : "Lancer les tests"}
+        </button>
+      </div>
     </div>
   );
 }
