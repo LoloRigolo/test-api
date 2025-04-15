@@ -13,7 +13,6 @@ export default function TestRunner() {
       delay: 0,
       body: "{}",
       middleware: "",
-      showMiddleware: false,
     },
   ]);
   const [results, setResults] = useState([]);
@@ -30,7 +29,6 @@ export default function TestRunner() {
         delay: 0,
         body: "{}",
         middleware: "",
-        showMiddleware: false,
       },
     ]);
   };
@@ -59,13 +57,26 @@ export default function TestRunner() {
         delay: parseInt(c.delay),
       };
 
+      let body = {};
+
+      if (c.method === "POST") {
+        try {
+          if (c.middleware) {
+            const middlewareFunc = new Function("body", c.middleware);
+            body = middlewareFunc(JSON.parse(c.body));
+          } else {
+            body = JSON.parse(c.body);
+          }
+        } catch (e) {
+          console.error("Erreur dans le middleware ou le corps JSON", e);
+          continue;
+        }
+      }
+
       const result =
         c.method === "GET"
           ? await runGetTest(commonParams)
-          : await runPostTest({
-              ...commonParams,
-              body: JSON.parse(c.body),
-            });
+          : await runPostTest({ ...commonParams, body });
 
       setResults((prev) => [
         ...prev.filter((r) => r.id !== c.id),
@@ -135,56 +146,41 @@ export default function TestRunner() {
           </div>
 
           {c.method === "POST" && (
-            <div className="form-group">
-              <label>Corps JSON :</label>
-              <CodeEditor
-                value={c.body}
-                language="json"
-                placeholder="Écris ton JSON ici..."
-                onChange={(evn) => handleChange(c.id, "body", evn.target.value)}
-                padding={15}
-                lineNumbers
-                style={{
-                  backgroundColor: "#f5f5f5",
-                  fontFamily:
-                    "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
-                }}
-              />
-            </div>
-          )}
+            <>
+              <div className="form-group">
+                <label>Corps JSON :</label>
+                <CodeEditor
+                  value={c.body}
+                  language="json"
+                  placeholder="{}"
+                  onChange={(e) => handleChange(c.id, "body", e.target.value)}
+                  padding={15}
+                  style={{
+                    backgroundColor: "#f5f5f5",
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
+                  }}
+                />
+              </div>
 
-          {c.method === "POST" && c.showMiddleware && (
-            <div className="form-group">
-              <label>Middleware JS :</label>
-              <CodeEditor
-                value={c.middleware}
-                language="js"
-                placeholder="Écris ton middleware JS ici..."
-                onChange={(evn) =>
-                  handleChange(c.id, "middleware", evn.target.value)
-                }
-                padding={15}
-                lineNumbers
-                style={{
-                  backgroundColor: "#f5f5f5",
-                  fontFamily:
-                    "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
-                }}
-              />
-            </div>
-          )}
-
-          {c.method === "POST" && (
-            <button
-              onClick={() =>
-                handleChange(c.id, "showMiddleware", !c.showMiddleware)
-              }
-              className="middleware-btn"
-              disabled={c.method !== "POST"}
-              title="Modifier le middleware"
-            >
-              Middleware
-            </button>
+              <div className="form-group">
+                <label>Middleware JS :</label>
+                <CodeEditor
+                  value={c.middleware}
+                  language="js"
+                  placeholder="function(body) { return body; }"
+                  onChange={(e) =>
+                    handleChange(c.id, "middleware", e.target.value)
+                  }
+                  padding={15}
+                  style={{
+                    backgroundColor: "#f5f5f5",
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
+                  }}
+                />
+              </div>
+            </>
           )}
 
           {results.find((r) => r.id === c.id) && (
