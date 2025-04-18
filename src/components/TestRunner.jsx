@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import CodeEditor from "@uiw/react-textarea-code-editor";
-import { runGetTest, runPostTest } from "../helpers/requestRunner";
+import { runGetTest, runWriteTest } from "../helpers/requestRunner";
+import { parseMiddlewares } from "../helpers/middleware";
 import "./TestRunner.css";
 
 export default function TestRunner() {
@@ -12,11 +12,11 @@ export default function TestRunner() {
       totalRequests: 10,
       delay: 0,
       body: "{}",
-      middleware: "",
     },
   ]);
   const [results, setResults] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [middlewares, setMiddlewares] = useState([""]);
 
   const handleAddCampaign = () => {
     setCampaigns([
@@ -28,7 +28,6 @@ export default function TestRunner() {
         totalRequests: 10,
         delay: 0,
         body: "{}",
-        middleware: "",
       },
     ]);
   };
@@ -48,6 +47,8 @@ export default function TestRunner() {
     setIsRunning(true);
     setResults([]);
 
+    const parsedMiddlewares = parseMiddlewares(middlewares);
+
     for (const c of campaigns) {
       if (!c.url) continue;
 
@@ -55,33 +56,22 @@ export default function TestRunner() {
         url: c.url,
         totalRequests: parseInt(c.totalRequests),
         delay: parseInt(c.delay),
+        middlewares: parsedMiddlewares,
+        onResult: (stats) => {
+          setResults((prev) => {
+            const without = prev.filter((r) => r.id !== c.id);
+            return [...without, { id: c.id, url: c.url, stats }];
+          });
+        },
       };
 
-      let body = {};
+      const runFn = c.method === "GET" ? runGetTest : runWriteTest;
 
-      if (c.method === "POST") {
-        try {
-          if (c.middleware) {
-            const middlewareFunc = new Function("body", c.middleware);
-            body = middlewareFunc(JSON.parse(c.body));
-          } else {
-            body = JSON.parse(c.body);
-          }
-        } catch (e) {
-          console.error("Erreur dans le middleware ou le corps JSON", e);
-          continue;
-        }
-      }
-
-      const result =
-        c.method === "GET"
-          ? await runGetTest(commonParams)
-          : await runPostTest({ ...commonParams, body });
-
-      setResults((prev) => [
-        ...prev.filter((r) => r.id !== c.id),
-        { id: c.id, url: c.url, stats: result },
-      ]);
+      await runFn({
+        ...commonParams,
+        method: c.method,
+        body: JSON.parse(c.body || "{}"),
+      });
     }
 
     setIsRunning(false);
@@ -89,17 +79,19 @@ export default function TestRunner() {
 
   return (
     <div className="tester-container">
+      <h1 className="title">Multi-Tests d’API</h1>
+
       {campaigns.map((c, i) => (
         <div className="campaign-block" key={c.id}>
           <div className="campaign-header">
-            <h2>Bloc #{i + 1}</h2>
             <button
               onClick={() => handleRemoveCampaign(c.id)}
-              className="remove-btn"
+              className="remove-campaign-btn"
               title="Supprimer ce bloc"
             >
               ❌
             </button>
+            <h2>Bloc #{i + 1}</h2>
           </div>
 
           <div className="form-group">
@@ -121,6 +113,8 @@ export default function TestRunner() {
               >
                 <option value="GET">GET</option>
                 <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
               </select>
             </div>
 
@@ -145,42 +139,15 @@ export default function TestRunner() {
             </div>
           </div>
 
-          {c.method === "POST" && (
-            <>
-              <div className="form-group">
-                <label>Corps JSON :</label>
-                <CodeEditor
-                  value={c.body}
-                  language="json"
-                  placeholder="{}"
-                  onChange={(e) => handleChange(c.id, "body", e.target.value)}
-                  padding={15}
-                  style={{
-                    backgroundColor: "#f5f5f5",
-                    fontFamily:
-                      "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
-                  }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Middleware JS :</label>
-                <CodeEditor
-                  value={c.middleware}
-                  language="js"
-                  placeholder="function(body) { return body; }"
-                  onChange={(e) =>
-                    handleChange(c.id, "middleware", e.target.value)
-                  }
-                  padding={15}
-                  style={{
-                    backgroundColor: "#f5f5f5",
-                    fontFamily:
-                      "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
-                  }}
-                />
-              </div>
-            </>
+          {["POST", "PUT"].includes(c.method) && (
+            <div className="form-group">
+              <label>Corps JSON :</label>
+              <textarea
+                value={c.body}
+                onChange={(e) => handleChange(c.id, "body", e.target.value)}
+                rows={3}
+              />
+            </div>
           )}
 
           {results.find((r) => r.id === c.id) && (
@@ -249,6 +216,43 @@ export default function TestRunner() {
       <button onClick={handleAddCampaign} className="add-btn">
         ➕ Ajouter un bloc de test
       </button>
+
+      <div className="form-group">
+        <label>Middlewares JS :</label>
+        {middlewares.map((mw, i) => (
+          <div key={i} className="middleware-row">
+            <textarea
+              rows={2}
+              value={mw}
+              onChange={(e) =>
+                setMiddlewares((prev) =>
+                  prev.map((v, j) => (j === i ? e.target.value : v))
+                )
+              }
+              placeholder="async function(req, next) { /* ... */ return next(req); }"
+            />
+            <button
+              type="button"
+              className="remove-middleware-btn"
+              onClick={() =>
+                setMiddlewares((prev) => prev.filter((_, j) => j !== i))
+              }
+              title="Supprimer ce middleware"
+            >
+              ❌
+            </button>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={() => setMiddlewares((prev) => [...prev, ""])}
+          className="add-btn"
+          style={{ marginTop: "10px" }}
+        >
+          ➕ Ajouter un middleware
+        </button>
+      </div>
 
       <button onClick={handleStart} disabled={isRunning}>
         {isRunning ? "Tests en cours..." : "Lancer les tests"}
