@@ -229,7 +229,7 @@ export default function TestRunner() {
                   prev.map((v, j) => (j === i ? e.target.value : v))
                 )
               }
-              placeholder="async function(req, next) { /* ... */ return next(req); }"
+              placeholder="ecrire async function(req, next) { /* ton code... */ return next(req); }"
             />
             <button
               type="button"
