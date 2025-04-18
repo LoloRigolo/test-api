@@ -1,60 +1,86 @@
-export async function runGetTest({ url, totalRequests, delay, onResult }) {
-  const stats = createEmptyStats();
+import { applyMiddlewares } from "./middleware";
 
-  for (let i = 0; i < totalRequests; i++) {
-    try {
-      const start = performance.now();
-      const res = await fetch(url);
-      const time = performance.now() - start;
-
-      updateStats(stats, res, time);
-    } catch (e) {
-      stats.total++;
-      stats.networkErrors++;
-    }
-
-    onResult?.(stats, i + 1);
-
-    if (delay > 0) await wait(delay);
-  }
-
-  return stats;
-}
-
-export async function runPostTest({
+export async function runGetTest({
   url,
   totalRequests,
   delay,
-  body,
   onResult,
+  middlewares = [],
 }) {
   const stats = createEmptyStats();
 
   for (let i = 0; i < totalRequests; i++) {
+    let request = {
+      url,
+      options: { method: "GET" },
+    };
+
     try {
+      request = await applyMiddlewares(request, middlewares);
+
       const start = performance.now();
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+      const res = await fetch(request.url, request.options);
       const time = performance.now() - start;
 
       updateStats(stats, res, time);
-    } catch (e) {
+    } catch (err) {
       stats.total++;
       stats.networkErrors++;
     }
 
     onResult?.(stats, i + 1);
-
     if (delay > 0) await wait(delay);
   }
 
   return stats;
 }
+
+export async function runWriteTest({
+  url,
+  method,
+  totalRequests,
+  delay,
+  body,
+  onResult,
+  middlewares = [],
+}) {
+  const stats = createEmptyStats();
+
+  for (let i = 0; i < totalRequests; i++) {
+    let request = {
+      url,
+      options: {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: ["POST", "PUT"].includes(method)
+          ? JSON.stringify(body)
+          : undefined,
+      },
+    };
+
+    try {
+      request = await applyMiddlewares(request, middlewares);
+
+      const start = performance.now();
+      const res = await fetch(request.url, request.options);
+      const time = performance.now() - start;
+
+      updateStats(stats, res, time);
+    } catch (err) {
+      stats.total++;
+      stats.networkErrors++;
+    }
+
+    onResult?.(stats, i + 1);
+    if (delay > 0) await wait(delay);
+  }
+
+  return stats;
+}
+
+// Utils
 
 function createEmptyStats() {
   return {
@@ -81,5 +107,5 @@ function updateStats(stats, res, duration) {
 }
 
 function wait(ms) {
-  return new Promise((res) => setTimeout(res, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
